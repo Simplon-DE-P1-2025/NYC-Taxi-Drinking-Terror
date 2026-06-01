@@ -44,21 +44,21 @@ jobs:
       - name: Write profiles.yml
         run: |
           mkdir -p ~/.dbt
-          cat > ~/.dbt/profiles.yml << 'EOF'
-          nyc_taxi:
-            target: prod
-            outputs:
-              prod:
-                type: snowflake
-                account: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-                user: ${{ secrets.SNOWFLAKE_USER }}
-                password: ${{ secrets.SNOWFLAKE_PASSWORD }}
-                role: NYC_TAXI_ROLE
-                warehouse: NYC_TAXI_WH
-                database: NYC_TAXI_DB
-                schema: STAGING
-                threads: 4
-          EOF
+          printf '%s\n' \
+            'nyc_taxi:' \
+            '  target: prod' \
+            '  outputs:' \
+            '    prod:' \
+            '      type: snowflake' \
+            "      account: ${{ secrets.SNOWFLAKE_ACCOUNT }}" \
+            "      user: ${{ secrets.SNOWFLAKE_USER }}" \
+            "      password: ${{ secrets.SNOWFLAKE_PASSWORD }}" \
+            '      role: NYC_TAXI_ROLE' \
+            '      warehouse: NYC_TAXI_WH' \
+            '      database: NYC_TAXI_DB' \
+            '      schema: STAGING' \
+            '      threads: 4' \
+            > ~/.dbt/profiles.yml
 
       - name: dbt deps
         working-directory: dbt_nyc_taxi
