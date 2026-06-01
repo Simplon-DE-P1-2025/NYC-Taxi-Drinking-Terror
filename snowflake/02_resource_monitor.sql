@@ -18,5 +18,4 @@ CREATE OR REPLACE RESOURCE MONITOR nyc_taxi_monitor
       ON 110 PERCENT DO SUSPEND_IMMEDIATE;  -- coupe immédiatement à 110%
 
 -- Attacher le monitor au warehouse (créé dans 00_setup.sql)
--- À réexécuter après la création du warehouse si besoin :
--- ALTER WAREHOUSE NYC_TAXI_WH SET RESOURCE_MONITOR = nyc_taxi_monitor;
+ALTER WAREHOUSE NYC_TAXI_WH SET RESOURCE_MONITOR = nyc_taxi_monitor;

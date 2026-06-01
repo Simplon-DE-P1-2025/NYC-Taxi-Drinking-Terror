@@ -11,13 +11,14 @@ USE ROLE ACCOUNTADMIN;
 -- -------------------------------------------------------------
 CREATE WAREHOUSE IF NOT EXISTS NYC_TAXI_WH
   WITH
-    WAREHOUSE_SIZE = 'X-SMALL'
-    AUTO_SUSPEND = 60           -- suspend après 60s d'inactivité
-    AUTO_RESUME = TRUE
-    INITIALLY_SUSPENDED = TRUE
-    COMMENT = 'Warehouse principal NYC Taxi project';
+    WAREHOUSE_SIZE   = 'X-SMALL',
+    AUTO_SUSPEND     = 60,          -- suspend après 60s d'inactivité
+    AUTO_RESUME      = TRUE,
+    INITIALLY_SUSPENDED = TRUE,
+    COMMENT          = 'Warehouse principal NYC Taxi project';
 
-ALTER WAREHOUSE NYC_TAXI_WH SET RESOURCE_MONITOR = nyc_taxi_monitor;
+-- Le resource monitor est créé dans 02_resource_monitor.sql,
+-- qui attache également le monitor au warehouse.
 
 -- -------------------------------------------------------------
 -- Base de données et schémas (architecture medallion)
@@ -58,21 +59,21 @@ GRANT ALL PRIVILEGES ON FUTURE VIEWS  IN SCHEMA NYC_TAXI_DB.FINAL   TO ROLE NYC_
 -- Remplacer <USERNAME_X> et <PASSWORD_X> avant d'exécuter
 -- Les mots de passe ne doivent jamais être committés dans le repo
 -- -------------------------------------------------------------
-CREATE USER IF NOT EXISTS ashley
+CREATE USER IF NOT EXISTS "SIMPLON"
   PASSWORD            = '<PASSWORD_A>'
   DEFAULT_ROLE        = NYC_TAXI_ROLE
   DEFAULT_WAREHOUSE   = NYC_TAXI_WH
   DEFAULT_NAMESPACE   = NYC_TAXI_DB
   MUST_CHANGE_PASSWORD = FALSE;
 
-CREATE USER IF NOT EXISTS matthieu
+CREATE USER IF NOT EXISTS "MATTHIEU.NAVARRO"
   PASSWORD            = '<PASSWORD_B>'
   DEFAULT_ROLE        = NYC_TAXI_ROLE
   DEFAULT_WAREHOUSE   = NYC_TAXI_WH
   DEFAULT_NAMESPACE   = NYC_TAXI_DB
   MUST_CHANGE_PASSWORD = FALSE;
 
-CREATE USER IF NOT EXISTS lounes
+CREATE USER IF NOT EXISTS "LOUNESABDOU"
   PASSWORD            = '<PASSWORD_C>'
   DEFAULT_ROLE        = NYC_TAXI_ROLE
   DEFAULT_WAREHOUSE   = NYC_TAXI_WH
@@ -80,7 +81,7 @@ CREATE USER IF NOT EXISTS lounes
   MUST_CHANGE_PASSWORD = FALSE;
 
 -- User dédié GitHub Actions (pas de connexion UI nécessaire)
-CREATE USER IF NOT EXISTS nyc_taxi_ci
+CREATE USER IF NOT EXISTS "nyc_taxi_ci"
   PASSWORD            = '<PASSWORD_CI>'
   DEFAULT_ROLE        = NYC_TAXI_ROLE
   DEFAULT_WAREHOUSE   = NYC_TAXI_WH
@@ -89,7 +90,7 @@ CREATE USER IF NOT EXISTS nyc_taxi_ci
   COMMENT             = 'Service account for GitHub Actions CI/CD';
 
 -- Attribuer le rôle à tous les users
-GRANT ROLE NYC_TAXI_ROLE TO USER ashley;
-GRANT ROLE NYC_TAXI_ROLE TO USER matthieu;
-GRANT ROLE NYC_TAXI_ROLE TO USER lounes;
-GRANT ROLE NYC_TAXI_ROLE TO USER nyc_taxi_ci;
+GRANT ROLE NYC_TAXI_ROLE TO USER "SIMPLON";
+GRANT ROLE NYC_TAXI_ROLE TO USER "MATTHIEU.NAVARRO";
+GRANT ROLE NYC_TAXI_ROLE TO USER "LOUNESABDOU";
+GRANT ROLE NYC_TAXI_ROLE TO USER "nyc_taxi_ci";
