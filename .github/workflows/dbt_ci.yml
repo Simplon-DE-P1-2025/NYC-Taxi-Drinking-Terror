@@ -11,6 +11,11 @@ on:
 jobs:
   dbt-test:
     runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      DBT_PROFILES_DIR: .
 
     steps:
       - uses: actions/checkout@v4
@@ -24,29 +29,27 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
-      - name: Write profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          printf '%s\n' \
-            'nyc_taxi:' \
-            '  target: prod' \
-            '  outputs:' \
-            '    prod:' \
-            '      type: snowflake' \
-            "      account: ${{ secrets.SNOWFLAKE_ACCOUNT }}" \
-            "      user: ${{ secrets.SNOWFLAKE_USER }}" \
-            "      password: ${{ secrets.SNOWFLAKE_PASSWORD }}" \
-            '      role: NYC_TAXI_ROLE' \
-            '      warehouse: NYC_TAXI_WH' \
-            '      database: NYC_TAXI_DB' \
-            '      schema: STAGING' \
-            '      threads: 4' \
-            > ~/.dbt/profiles.yml
-
       - name: dbt deps
         working-directory: dbt_nyc_taxi
         run: uv run dbt deps
 
-      - name: dbt build (prod)
+      - name: dbt build (ci)
         working-directory: dbt_nyc_taxi
-        run: uv run dbt build --target prod
+        run: uv run dbt build --target ci
+
+      - name: Cleanup CI schema
+        if: always()
+        run: |
+          uv run python -c "
+          import snowflake.connector, os
+          conn = snowflake.connector.connect(
+              account=os.environ['SNOWFLAKE_ACCOUNT'],
+              user=os.environ['SNOWFLAKE_USER'],
+              password=os.environ['SNOWFLAKE_PASSWORD'],
+              role='NYC_TAXI_ROLE',
+              warehouse='NYC_TAXI_WH',
+              database='NYC_TAXI_DB',
+          )
+          conn.cursor().execute('DROP SCHEMA IF EXISTS DBT_CI')
+          conn.close()
+          "

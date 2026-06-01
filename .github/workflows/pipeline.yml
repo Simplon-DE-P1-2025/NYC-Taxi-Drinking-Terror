@@ -18,6 +18,11 @@ on:
 jobs:
   ingest-and-transform:
     runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      DBT_PROFILES_DIR: .
 
     steps:
       - uses: actions/checkout@v4
@@ -36,29 +41,6 @@ jobs:
           uv run python ingestion/load_to_raw.py \
             --year ${{ github.event.inputs.year || '2024' }} \
             --month ${{ github.event.inputs.month || '01' }}
-        env:
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-
-      - name: Write profiles.yml
-        run: |
-          mkdir -p ~/.dbt
-          printf '%s\n' \
-            'nyc_taxi:' \
-            '  target: prod' \
-            '  outputs:' \
-            '    prod:' \
-            '      type: snowflake' \
-            "      account: ${{ secrets.SNOWFLAKE_ACCOUNT }}" \
-            "      user: ${{ secrets.SNOWFLAKE_USER }}" \
-            "      password: ${{ secrets.SNOWFLAKE_PASSWORD }}" \
-            '      role: NYC_TAXI_ROLE' \
-            '      warehouse: NYC_TAXI_WH' \
-            '      database: NYC_TAXI_DB' \
-            '      schema: STAGING' \
-            '      threads: 4' \
-            > ~/.dbt/profiles.yml
 
       - name: dbt deps
         working-directory: dbt_nyc_taxi
