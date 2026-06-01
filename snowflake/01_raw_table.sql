@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS yellow_taxi_trips (
 
     -- Colonnes de traçabilité du chargement
     _loaded_at              TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
-    _source_file            VARCHAR       DEFAULT METADATA$FILENAME
+    _source_file            VARCHAR
 
 )
 COMMENT = 'Données brutes TLC Yellow Taxi 2024-2025, chargées via COPY INTO';
