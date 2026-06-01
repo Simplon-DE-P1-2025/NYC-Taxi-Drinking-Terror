@@ -1,0 +1,34 @@
+# ──────────────────────────────
+# dbt
+# ──────────────────────────────
+target/
+dbt_packages/
+logs/
+
+# CRITIQUE : ne jamais commiter ce fichier (contient les credentials Snowflake)
+profiles.yml
+
+# ──────────────────────────────
+# Python
+# ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+
+# ──────────────────────────────
+# IDE
+# ──────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ──────────────────────────────
+# OS
+# ──────────────────────────────
+.DS_Store
+Thumbs.db
+
