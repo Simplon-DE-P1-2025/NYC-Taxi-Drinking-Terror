@@ -28,7 +28,7 @@ nyc_taxi:
       threads: 4
       client_session_keep_alive: false
 
-    ci:
+    preprod:
       type: snowflake
       account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
       user: "{{ env_var('SNOWFLAKE_USER') }}"
@@ -36,6 +36,6 @@ nyc_taxi:
       role: NYC_TAXI_ROLE
       warehouse: NYC_TAXI_WH
       database: NYC_TAXI_DB
-      schema: DBT_CI
+      schema: DBT_PREPROD
       threads: 4
       client_session_keep_alive: false

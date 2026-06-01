@@ -1,15 +1,13 @@
-name: dbt CI
+name: dbt deploy (prod)
 
 on:
-  pull_request:
-    branches: [develop, main]
+  push:
+    branches: [main]
     paths:
       - 'dbt_nyc_taxi/**'
-      - 'pyproject.toml'
-      - 'uv.lock'
 
 jobs:
-  dbt-compile:
+  dbt-deploy:
     runs-on: ubuntu-latest
     env:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
@@ -33,6 +31,6 @@ jobs:
         working-directory: dbt_nyc_taxi
         run: uv run dbt deps
 
-      - name: dbt compile
+      - name: dbt build (prod)
         working-directory: dbt_nyc_taxi
-        run: uv run dbt compile
+        run: uv run dbt build --target prod
