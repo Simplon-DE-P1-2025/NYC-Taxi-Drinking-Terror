@@ -1,0 +1,14 @@
+[project]
+name = "nyc-taxi-drinking-terror"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "snowflake-connector-python>=3.0",
+    "requests>=2.31",
+    "python-dotenv>=1.0",
+    "dbt-core>=1.8",
+    "dbt-snowflake>=1.8",
+]
+
+[dependency-groups]
+dev = []

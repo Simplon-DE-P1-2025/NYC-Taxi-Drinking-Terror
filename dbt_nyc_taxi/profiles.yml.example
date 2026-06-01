@@ -1,0 +1,29 @@
+# Copier ce fichier vers ~/.dbt/profiles.yml (JAMAIS commiter profiles.yml)
+# Les valeurs sensibles sont lues depuis les variables d'environnement (.env local)
+
+nyc_taxi:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: NYC_TAXI_ROLE
+      warehouse: NYC_TAXI_WH
+      database: NYC_TAXI_DB
+      schema: "DBT_{{ env_var('DBT_USER', 'DEV') }}"
+      threads: 4
+      client_session_keep_alive: false
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: NYC_TAXI_ROLE
+      warehouse: NYC_TAXI_WH
+      database: NYC_TAXI_DB
+      schema: STAGING
+      threads: 4
+      client_session_keep_alive: false
