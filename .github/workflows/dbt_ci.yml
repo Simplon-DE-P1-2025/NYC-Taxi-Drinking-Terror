@@ -1,0 +1,52 @@
+name: dbt CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - 'dbt_nyc_taxi/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+
+jobs:
+  dbt-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Write profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          printf '%s\n' \
+            'nyc_taxi:' \
+            '  target: prod' \
+            '  outputs:' \
+            '    prod:' \
+            '      type: snowflake' \
+            "      account: ${{ secrets.SNOWFLAKE_ACCOUNT }}" \
+            "      user: ${{ secrets.SNOWFLAKE_USER }}" \
+            "      password: ${{ secrets.SNOWFLAKE_PASSWORD }}" \
+            '      role: NYC_TAXI_ROLE' \
+            '      warehouse: NYC_TAXI_WH' \
+            '      database: NYC_TAXI_DB' \
+            '      schema: STAGING' \
+            '      threads: 4' \
+            > ~/.dbt/profiles.yml
+
+      - name: dbt deps
+        working-directory: dbt_nyc_taxi
+        run: uv run dbt deps
+
+      - name: dbt build (prod)
+        working-directory: dbt_nyc_taxi
+        run: uv run dbt build --target prod

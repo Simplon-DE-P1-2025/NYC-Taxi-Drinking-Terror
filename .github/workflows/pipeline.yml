@@ -1,0 +1,69 @@
+name: Pipeline ingestion + dbt
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: 'Année (ex: 2024)'
+        required: true
+        default: '2024'
+      month:
+        description: 'Mois (ex: 01)'
+        required: true
+        default: '01'
+  schedule:
+    # Les données TLC sont publiées avec ~2 mois de décalage — run le 15 du mois
+    - cron: '0 6 15 * *'
+
+jobs:
+  ingest-and-transform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Ingestion RAW
+        run: |
+          uv run python ingestion/load_to_raw.py \
+            --year ${{ github.event.inputs.year || '2024' }} \
+            --month ${{ github.event.inputs.month || '01' }}
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+
+      - name: Write profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          printf '%s\n' \
+            'nyc_taxi:' \
+            '  target: prod' \
+            '  outputs:' \
+            '    prod:' \
+            '      type: snowflake' \
+            "      account: ${{ secrets.SNOWFLAKE_ACCOUNT }}" \
+            "      user: ${{ secrets.SNOWFLAKE_USER }}" \
+            "      password: ${{ secrets.SNOWFLAKE_PASSWORD }}" \
+            '      role: NYC_TAXI_ROLE' \
+            '      warehouse: NYC_TAXI_WH' \
+            '      database: NYC_TAXI_DB' \
+            '      schema: STAGING' \
+            '      threads: 4' \
+            > ~/.dbt/profiles.yml
+
+      - name: dbt deps
+        working-directory: dbt_nyc_taxi
+        run: uv run dbt deps
+
+      - name: dbt build (prod)
+        working-directory: dbt_nyc_taxi
+        run: uv run dbt build --target prod
