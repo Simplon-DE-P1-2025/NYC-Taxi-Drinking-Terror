@@ -38,9 +38,13 @@ jobs:
 
       - name: Ingestion RAW
         run: |
-          uv run python ingestion/load_to_raw.py \
-            --year ${{ github.event.inputs.year || '2024' }} \
-            --month ${{ github.event.inputs.month || '01' }}
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            uv run python ingestion/load_to_raw.py --last-available
+          else
+            uv run python ingestion/load_to_raw.py \
+              --year ${{ inputs.year }} \
+              --month ${{ inputs.month }}
+          fi
 
       - name: dbt deps
         working-directory: dbt_nyc_taxi
