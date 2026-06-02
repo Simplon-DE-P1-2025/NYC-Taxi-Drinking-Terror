@@ -1,22 +1,13 @@
-name: Pipeline ingestion + dbt
+name: dbt deploy (prod)
 
 on:
-  workflow_dispatch:
-    inputs:
-      year:
-        description: 'Année (ex: 2024)'
-        required: true
-        default: '2024'
-      month:
-        description: 'Mois (ex: 01)'
-        required: true
-        default: '01'
-  schedule:
-    # Les données TLC sont publiées avec ~2 mois de décalage — run le 15 du mois
-    - cron: '0 6 15 * *'
+  push:
+    branches: [main]
+    paths:
+      - 'dbt_nyc_taxi/**'
 
 jobs:
-  ingest-and-transform:
+  dbt-deploy:
     runs-on: ubuntu-latest
     env:
       SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
@@ -35,12 +26,6 @@ jobs:
 
       - name: Install dependencies
         run: uv sync
-
-      - name: Ingestion RAW
-        run: |
-          uv run python ingestion/load_to_raw.py \
-            --year ${{ github.event.inputs.year || '2024' }} \
-            --month ${{ github.event.inputs.month || '01' }}
 
       - name: dbt deps
         working-directory: dbt_nyc_taxi
