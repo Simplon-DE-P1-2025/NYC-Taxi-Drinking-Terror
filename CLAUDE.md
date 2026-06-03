@@ -56,14 +56,14 @@ uv pip install -r requirements.txt
 # Ingestion (toujours tester sur 1 mois avant de scaler)
 uv run python ingestion/load_to_raw.py --year 2025 --month 01
 
-# dbt (depuis dbt_nyc_taxi/)
+# dbt (depuis dbt_nyc_taxi/) — --env-file charge le .env de la racine
 cd dbt_nyc_taxi
-uv run dbt deps        # installe les packages (dbt-utils)
-uv run dbt seed        # charge taxi_zone_lookup.csv
-uv run dbt run         # exécute les modèles
-uv run dbt test        # tests qualité
-uv run dbt build       # run + test combinés
-uv run dbt docs generate && uv run dbt docs serve
+uv run --env-file ../.env dbt deps        # installe les packages (dbt-utils)
+uv run --env-file ../.env dbt seed        # charge taxi_zone_lookup.csv
+uv run --env-file ../.env dbt run         # exécute les modèles
+uv run --env-file ../.env dbt test        # tests qualité
+uv run --env-file ../.env dbt build       # run + test combinés
+uv run --env-file ../.env dbt docs generate && uv run --env-file ../.env dbt docs serve
 ```
 
 ## Conventions de code

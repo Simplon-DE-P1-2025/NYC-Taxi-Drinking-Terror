@@ -1,0 +1,64 @@
+version: 2
+
+sources:
+  - name: raw
+    database: NYC_TAXI_DB
+    schema: RAW
+    description: "Données brutes NYC TLC Yellow Taxi chargées depuis les fichiers Parquet mensuels via COPY INTO."
+    config:
+      loaded_at_field: _loaded_at
+      freshness:
+        warn_after: {count: 65, period: day}   # TLC publie avec ~2 mois de décalage
+    tables:
+      - name: yellow_taxi_trips
+        description: >
+          Une ligne = un trajet brut. Types permissifs pour absorber les variations de schéma
+          entre mois (ex. passenger_count parfois DOUBLE, parfois INT64).
+          cbd_congestion_fee est NULL pour tous les fichiers 2024 (tarif entré en vigueur le 05/01/2025).
+        columns:
+          - name: vendorid
+            description: "Identifiant du fournisseur de données (1 = Creative Mobile Technologies, 2 = VeriFone)"
+          - name: tpep_pickup_datetime
+            description: "Horodatage de début de course"
+          - name: tpep_dropoff_datetime
+            description: "Horodatage de fin de course"
+          - name: passenger_count
+            description: "Nombre de passagers (saisie chauffeur, type variable selon les mois)"
+          - name: trip_distance
+            description: "Distance de la course en miles (unité TLC)"
+          - name: ratecodeid
+            description: "Code tarifaire appliqué (1=Standard, 2=JFK, 3=Newark, 4=Nassau/Westchester, 5=Négocié, 6=Groupe)"
+          - name: store_and_fwd_flag
+            description: "Y = donnée stockée localement avant envoi (mauvaise connexion), N = envoi direct"
+          - name: pulocationid
+            description: "Zone TLC de prise en charge (LocationID)"
+          - name: dolocationid
+            description: "Zone TLC de dépose (LocationID)"
+          - name: payment_type
+            description: "Type de paiement (1=Carte, 2=Espèces, 3=Sans frais, 4=Litige, 5=Inconnu, 6=Annulé)"
+          - name: fare_amount
+            description: "Montant du tarif calculé par le compteur"
+          - name: extra
+            description: "Suppléments divers (surcharge rush hour $0.50, nuit $0.50)"
+          - name: mta_tax
+            description: "Taxe MTA de $0.50 déclenchée automatiquement"
+          - name: tip_amount
+            description: "Pourboire — uniquement renseigné pour les paiements carte (payment_type = 1)"
+          - name: tolls_amount
+            description: "Total des péages payés pendant la course"
+          - name: improvement_surcharge
+            description: "Surcharge amélioration de $0.30 prélevée à la fin de course"
+          - name: total_amount
+            description: "Montant total facturé au passager (hors pourboires en espèces)"
+          - name: congestion_surcharge
+            description: "Surcharge congestion $2.50 pour les courses Manhattan sud du 96e Rue"
+          - name: airport_fee
+            description: "Frais aéroport $1.25 pour les prises en charge à JFK et LaGuardia"
+          - name: cbd_congestion_fee
+            description: >
+              Péage de congestion CBD entré en vigueur le 05/01/2025.
+              NULL pour toutes les données 2024.
+          - name: _loaded_at
+            description: "Horodatage du chargement dans Snowflake (METADATA$START_SCAN_TIME via COPY INTO)"
+          - name: _source_file
+            description: "Nom du fichier Parquet source (METADATA$FILENAME via COPY INTO)"

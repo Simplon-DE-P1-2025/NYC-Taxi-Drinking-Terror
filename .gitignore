@@ -4,6 +4,7 @@
 target/
 dbt_packages/
 logs/
+.user.yml
 
 # Sécurité : profiles.yml contient les credentials — interdit partout sauf dans dbt_nyc_taxi/
 # (celui-ci n'a aucune valeur en dur, tout passe par env_var)
