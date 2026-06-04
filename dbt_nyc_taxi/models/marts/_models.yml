@@ -1,0 +1,132 @@
+version: 2
+
+models:
+  # --- daily_summary : à compléter par la collègue responsable de ce modèle ---
+
+  - name: hourly_patterns
+    description: >
+      Patterns temporels des trajets Yellow Taxi NYC agrégés par heure de prise en charge,
+      type de jour (semaine / week-end) et mois. Grain : (pickup_month, pickup_hour, is_weekend).
+      Permet d'analyser volumes, tarifs et vitesses selon l'heure de la journée et d'identifier
+      les heures de pointe.
+    columns:
+      - name: pickup_month
+        description: "Mois de prise en charge (tronqué au 1er du mois)"
+        tests:
+          - not_null
+
+      - name: pickup_hour
+        description: "Heure de prise en charge (0-23)"
+        tests:
+          - not_null
+
+      - name: time_of_day
+        description: "Tranche horaire : Early morning (5-8) / Morning (8-12) / Afternoon (12-17) / Evening (17-21) / Night (21-1) / Late night (1-5)"
+
+      - name: is_rush_hour
+        description: "TRUE si heure de pointe (7h-9h ou 16h-19h)"
+
+      - name: is_weekend
+        description: "TRUE si samedi ou dimanche"
+        tests:
+          - not_null
+
+      - name: total_trips
+        description: "Nombre total de trajets"
+        tests:
+          - not_null
+
+      - name: total_passengers
+        description: "Nombre total de passagers transportés"
+
+      - name: avg_distance_km
+        description: "Distance moyenne en km"
+
+      - name: avg_duration_min
+        description: "Durée moyenne en minutes"
+
+      - name: avg_speed_kmh
+        description: "Vitesse moyenne en km/h"
+
+      - name: avg_fare
+        description: "Tarif moyen au compteur"
+
+      - name: avg_fare_per_km
+        description: "Ratio de moyennes AVG(fare) / AVG(distance_km) — taux effectif par km sur l'ensemble des trajets de la tranche"
+
+      - name: avg_total_amount
+        description: "Montant total moyen facturé"
+
+      - name: total_revenue
+        description: "Revenu total (somme des total_amount)"
+
+      - name: avg_tip_pct_card
+        description: "Taux de pourboire moyen en % — paiements carte uniquement (payment_type = 1)"
+
+      - name: airport_trips
+        description: "Nombre de trajets impliquant un aéroport (prise en charge ou dépose)"
+
+      - name: airport_trip_pct
+        description: "Part de trajets aéroport en %"
+
+  - name: zone_analysis
+    description: >
+      Analyse des trajets Yellow Taxi NYC par zone géographique TLC.
+      Grain : une ligne par zone (location_id). Agrège les métriques en tant que
+      zone d'origine (pickup) et de destination (dropoff) sur l'ensemble de la période 2024-2025.
+    columns:
+      - name: location_id
+        description: "Identifiant de la zone TLC"
+        tests:
+          - not_null
+          - unique
+
+      - name: borough
+        description: "Arrondissement (Manhattan, Brooklyn, Queens, Bronx, Staten Island, EWR)"
+
+      - name: zone
+        description: "Nom de la zone TLC"
+
+      - name: service_zone
+        description: "Type de service (Yellow Zone / Boro Zone / Airports / EWR)"
+
+      - name: trips_as_origin
+        description: "Nombre de trajets partant de cette zone"
+        tests:
+          - not_null
+
+      - name: passengers_as_origin
+        description: "Nombre de passagers pris en charge dans cette zone"
+
+      - name: avg_trip_distance_km
+        description: "Distance moyenne des trajets au départ de cette zone"
+
+      - name: avg_trip_duration_min
+        description: "Durée moyenne des trajets au départ de cette zone"
+
+      - name: avg_fare
+        description: "Tarif moyen au compteur pour les trajets au départ de cette zone"
+
+      - name: avg_fare_per_km
+        description: "Ratio de moyennes SUM(fare) / SUM(distance_km) — taux effectif par km pour tous les trajets au départ de cette zone"
+
+      - name: total_revenue_as_origin
+        description: "Revenu total généré depuis cette zone (sum total_amount)"
+
+      - name: airport_trips
+        description: "Nombre de trajets aéroport au départ de cette zone"
+
+      - name: avg_tip_pct_card
+        description: "Taux de pourboire moyen en % (paiements carte) depuis cette zone"
+
+      - name: trips_as_destination
+        description: "Nombre de trajets arrivant dans cette zone"
+
+      - name: passengers_as_destination
+        description: "Nombre de passagers déposés dans cette zone"
+
+      - name: total_revenue_as_destination
+        description: "Revenu total des trajets se terminant dans cette zone"
+
+      - name: total_zone_activity
+        description: "Activité totale de la zone (trips_as_origin + trips_as_destination)"
