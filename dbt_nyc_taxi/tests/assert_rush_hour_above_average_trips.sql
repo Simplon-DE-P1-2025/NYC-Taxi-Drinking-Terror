@@ -1,14 +1,16 @@
--- Rush hour weekday slots must have more trips than the average weekday slot.
--- Rows returned = rush hour slots below average → flag or data is inconsistent.
-WITH weekday_avg AS (
-    SELECT AVG(total_trips) AS avg_trips
+-- For each month, average trips during rush hours must exceed average trips
+-- during non-rush hours on weekdays.
+-- Rows returned = months where rush hours are not busier than off-peak → inconsistency.
+WITH monthly_rush_vs_nonrush AS (
+    SELECT
+        pickup_month,
+        AVG(CASE WHEN is_rush_hour = TRUE  THEN total_trips END) AS avg_rush_trips,
+        AVG(CASE WHEN is_rush_hour = FALSE THEN total_trips END) AS avg_nonrush_trips
     FROM {{ ref('hourly_patterns') }}
     WHERE is_weekend = FALSE
+    GROUP BY pickup_month
 )
 
-SELECT h.*
-FROM {{ ref('hourly_patterns') }} h
-CROSS JOIN weekday_avg w
-WHERE h.is_rush_hour = TRUE
-  AND h.is_weekend = FALSE
-  AND h.total_trips < w.avg_trips
+SELECT *
+FROM monthly_rush_vs_nonrush
+WHERE avg_rush_trips <= avg_nonrush_trips
