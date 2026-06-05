@@ -1,0 +1,36 @@
+name: dbt deploy (prod)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dbt_nyc_taxi/**'
+
+jobs:
+  dbt-deploy:
+    runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      DBT_PROFILES_DIR: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: dbt deps
+        working-directory: dbt_nyc_taxi
+        run: uv run dbt deps
+
+      - name: dbt build (prod)
+        working-directory: dbt_nyc_taxi
+        run: uv run dbt build --target prod

@@ -1,0 +1,41 @@
+# Partagé dans le repo — aucune valeur sensible (tout via env_var)
+# Requis dans .env : SNOWFLAKE_ACCOUNT, SNOWFLAKE_USER, SNOWFLAKE_PASSWORD, DBT_USER
+
+nyc_taxi:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: NYC_TAXI_ROLE
+      warehouse: NYC_TAXI_WH
+      database: NYC_TAXI_DB
+      schema: "DBT_{{ env_var('DBT_USER', 'DEV') }}"
+      threads: 4
+      client_session_keep_alive: false
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: NYC_TAXI_ROLE
+      warehouse: NYC_TAXI_WH
+      database: NYC_TAXI_DB
+      schema: STAGING
+      threads: 4
+      client_session_keep_alive: false
+
+    preprod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+      role: NYC_TAXI_ROLE
+      warehouse: NYC_TAXI_WH
+      database: NYC_TAXI_DB
+      schema: DBT_PREPROD
+      threads: 4
+      client_session_keep_alive: false

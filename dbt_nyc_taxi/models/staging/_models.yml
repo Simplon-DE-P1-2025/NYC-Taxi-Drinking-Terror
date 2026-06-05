@@ -1,0 +1,151 @@
+version: 2
+
+models:
+  - name: stg_yellow_trips
+    description: >
+      Trajets Yellow Taxi NYC 2024-2025 nettoyés, typés et enrichis.
+      Filtres appliqués : montants négatifs exclus, distances nulles exclues, durées invalides exclues,
+      outliers P99 exclus (distance > 35 km ou durée > 75 min).
+      Enrichissements : zones TLC (borough, zone, service_zone), dimensions temporelles,
+      catégories analytiques (distance, durée, tarif, pourboire, groupe, vitesse).
+      Distances converties en km, durées en minutes.
+    columns:
+      - name: trip_id
+        description: "Clé de substitution (MD5 sur vendor, pickup/dropoff datetime, locations, fare)"
+        tests:
+          - not_null
+          - unique
+
+      - name: vendor_id
+        description: "Identifiant du fournisseur TLC"
+        tests:
+          - not_null
+
+      - name: pickup_location_id
+        description: "Zone TLC de prise en charge"
+        tests:
+          - not_null
+
+      - name: dropoff_location_id
+        description: "Zone TLC de dépose"
+        tests:
+          - not_null
+
+      - name: rate_code_id
+        description: "Code tarifaire (1-6)"
+
+      - name: payment_type_id
+        description: "Type de paiement (1=Carte, 2=Espèces, 3-6=autres)"
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6]
+
+      - name: pickup_datetime
+        description: "Horodatage de début de course"
+        tests:
+          - not_null
+
+      - name: dropoff_datetime
+        description: "Horodatage de fin de course"
+        tests:
+          - not_null
+
+      - name: pickup_date
+        description: "Date de prise en charge (sans heure)"
+        tests:
+          - not_null
+
+      - name: pickup_hour
+        description: "Heure de prise en charge (0-23)"
+      - name: pickup_day_of_week
+        description: "Jour de semaine (0=Dimanche … 6=Samedi, convention Snowflake DAYOFWEEK)"
+      - name: is_weekend
+        description: "TRUE si samedi ou dimanche"
+      - name: is_rush_hour
+        description: "TRUE si 7h-9h ou 16h-19h"
+      - name: time_of_day
+        description: "Tranche horaire : Early morning / Morning / Afternoon / Evening / Night / Late night"
+
+      - name: passenger_count
+        description: "Nombre de passagers (0 si NULL dans la source)"
+      - name: trip_distance_km
+        description: "Distance en km (miles * 1.60934)"
+        tests:
+          - not_null
+      - name: trip_duration_minutes
+        description: "Durée en minutes"
+        tests:
+          - not_null
+      - name: speed_kmh
+        description: "Vitesse moyenne en km/h (NULL si durée = 0)"
+
+      - name: fare_amount
+        description: "Tarif compteur"
+        tests:
+          - not_null
+      - name: extra
+        description: "Suppléments (0 si NULL)"
+      - name: mta_tax
+        description: "Taxe MTA (0 si NULL)"
+      - name: tip_amount
+        description: "Pourboire brut (non nul uniquement pour paiement carte)"
+      - name: tolls_amount
+        description: "Péages (0 si NULL)"
+      - name: improvement_surcharge
+        description: "Surcharge amélioration (0 si NULL)"
+      - name: congestion_surcharge
+        description: "Surcharge congestion (0 si NULL)"
+      - name: airport_fee
+        description: "Frais aéroport (0 si NULL)"
+      - name: cbd_congestion_fee
+        description: "Péage CBD (0 si NULL — données 2024 toujours 0)"
+      - name: total_amount
+        description: "Montant total facturé"
+        tests:
+          - not_null
+      - name: fare_per_km
+        description: "Tarif par km (NULL si distance = 0)"
+      - name: tip_percentage
+        description: "Taux de pourboire en % (NULL pour paiements non-carte)"
+
+      - name: store_and_fwd_flag
+        description: "Flag store-and-forward (Y/N)"
+
+      - name: pickup_borough
+        description: "Arrondissement de prise en charge (depuis taxi_zone_lookup)"
+      - name: pickup_zone
+        description: "Zone de prise en charge"
+      - name: pickup_service_zone
+        description: "Service zone de prise en charge (Yellow Zone / Boro Zone / Airports / EWR)"
+      - name: dropoff_borough
+        description: "Arrondissement de dépose"
+      - name: dropoff_zone
+        description: "Zone de dépose"
+      - name: dropoff_service_zone
+        description: "Service zone de dépose"
+      - name: is_airport_trip
+        description: "TRUE si prise en charge ou dépose dans une zone Airports"
+
+      - name: _loaded_at
+        description: "Horodatage du chargement Snowflake"
+        tests:
+          - not_null
+      - name: _source_file
+        description: "Nom du fichier Parquet source"
+        tests:
+          - not_null
+
+      - name: distance_category
+        description: "Catégorie de distance : 0-1 km / 1-5 km / 5-10 km / 10-20 km / 20+ km"
+      - name: duration_category
+        description: "Catégorie de durée : 0-5 min / 5-15 min / 15-30 min / 30-60 min / 60+ min"
+      - name: fare_category
+        description: "Catégorie de tarif : $0-10 / $10-25 / $25-50 / $50-100 / $100+"
+      - name: tip_category
+        description: "Catégorie de pourboire (NULL pour paiements non-carte)"
+      - name: party_size
+        description: "Taille du groupe : Solo / Pair / Small group / Large group / Unknown"
+      - name: speed_category
+        description: "Catégorie de vitesse : Crawl / Slow / Normal / Fast"

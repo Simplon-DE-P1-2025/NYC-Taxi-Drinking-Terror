@@ -1,0 +1,37 @@
+# ──────────────────────────────
+# dbt
+# ──────────────────────────────
+target/
+dbt_packages/
+logs/
+.user.yml
+
+# Sécurité : profiles.yml contient les credentials — interdit partout sauf dans dbt_nyc_taxi/
+# (celui-ci n'a aucune valeur en dur, tout passe par env_var)
+profiles.yml
+!dbt_nyc_taxi/profiles.yml
+
+# ──────────────────────────────
+# Python
+# ──────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+*.egg-info/
+
+# ──────────────────────────────
+# IDE
+# ──────────────────────────────
+.vscode/
+.idea/
+*.swp
+
+# ──────────────────────────────
+# OS
+# ──────────────────────────────
+.DS_Store
+Thumbs.db
+
