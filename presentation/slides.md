@@ -2,6 +2,7 @@
 marp: true
 theme: default
 paginate: true
+html: true
 style: |
   /* ── Palette ─────────────────────────────────────────────── */
   :root {
@@ -124,6 +125,39 @@ style: |
   section.lead p   { color: #CCCCCC; margin: 6px 0; }
   section.lead strong { color: var(--yellow); }
   section.lead::after { color: transparent; }
+
+  /* ── Carte lien dashboard ────────────────────────────────── */
+  .link-card {
+    background: var(--black);
+    border: 2px solid var(--yellow);
+    border-radius: 8px;
+    padding: 22px 28px;
+    margin: 28px 0 0;
+    text-align: center;
+  }
+
+  .link-card .link-label {
+    display: block;
+    font-size: 0.78em;
+    color: #AAAAAA;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .link-card a {
+    color: var(--yellow);
+    font-family: 'Courier New', monospace;
+    font-size: 0.72em;
+    text-decoration: none;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .link-card a::before {
+    content: '→ ';
+    font-style: normal;
+  }
 ---
 
 <!-- _class: lead -->
@@ -131,7 +165,7 @@ style: |
 # NYC Yellow Taxi
 ## Pipeline de données end-to-end
 
-**2024 – début 2025 · ~40–60 millions de trajets**
+**2024 – 2025 · ~70 millions de trajets**
 
 Ashley · Matthieu · Lounes
 *Simplon — Data Engineering P1 2025*
@@ -151,7 +185,7 @@ La **NYC TLC** publie chaque mois les données de tous les Yellow Taxis (~200–
 
 ---
 
-# Architecture — Medallion
+# Architecture — Multi-Stage
 
 ```
 NYC TLC  (Parquet mensuel, ~300 MB)
@@ -279,11 +313,14 @@ Cron le 15/mois    →  ingestion + prod    pipeline mensuel automatisé
 
 # Dashboard Streamlit
 
-<!-- TODO : ajouter captures d'écran une fois le dashboard finalisé -->
+- Interface déployée sur **Snowflake Streamlit** — accès direct aux tables `FINAL`
+- Pas d'export de données : le compute reste dans Snowflake
+- Visualisations interactives : volume par zone, patterns temporels, KPIs financiers
 
-- Interface déployée sur **Snowflake Streamlit**
-- Accès direct aux tables `FINAL` — pas d'export de données
-- Visualisations : …
+<div class="link-card">
+  <span class="link-label">Dashboard interactif</span>
+  <a href="https://app.snowflake.com/streamlit/eu-central-2.aws/ph28527/#/apps/3oufchb672ktihdcgkvx">app.snowflake.com/streamlit/eu-central-2.aws/ph28527/#/apps/3oufchb672ktihdcgkvx</a>
+</div>
 
 ---
 
@@ -302,7 +339,7 @@ Cron le 15/mois    →  ingestion + prod    pipeline mensuel automatisé
 # Merci
 
 **Ce qu'on retient**
-Pipeline end-to-end fonctionnel · Architecture medallion reproductible · Qualité validée à chaque couche
+Pipeline end-to-end fonctionnel · Architecture Multi-Stage reproductible · Qualité validée à chaque couche
 
 *Questions ?*
 
