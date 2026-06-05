@@ -50,8 +50,7 @@ Privilégier `uv run` partout pour rester compatible Windows / macOS / Linux (é
 
 ```bash
 # Setup initial
-uv venv
-uv pip install -r requirements.txt
+uv sync
 
 # Ingestion (toujours tester sur 1 mois avant de scaler)
 uv run python ingestion/load_to_raw.py --year 2025 --month 01

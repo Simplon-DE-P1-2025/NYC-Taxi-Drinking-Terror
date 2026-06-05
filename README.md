@@ -124,8 +124,7 @@ cd NYC-Taxi-Drinking-Terror
 ### 2. Installer les dépendances Python
 
 ```bash
-uv venv
-uv pip install -r requirements.txt
+uv sync
 ```
 
 ### 3. Configurer les variables d'environnement
@@ -268,8 +267,7 @@ NYC-Taxi-Drinking-Terror/
 │   └── slides.md                      # slides Marp pour la présentation
 │
 ├── .env.example
-├── pyproject.toml
-└── requirements.txt
+└── pyproject.toml
 ```
 
 ---
