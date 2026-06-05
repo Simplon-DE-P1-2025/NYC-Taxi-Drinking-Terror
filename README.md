@@ -1,6 +1,14 @@
 # NYC Yellow Taxi — Pipeline de données end-to-end
 
-Pipeline de données complet sur les trajets de taxis jaunes de New York (NYC TLC Yellow Taxi), couvrant la période **2024 – début 2025** (~40–60 millions de lignes). Projet réalisé en 3 jours par 3 personnes dans le cadre de la formation **Data Engineering — Simplon Promotion P1 2025**.
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white)
+![Snowflake](https://img.shields.io/badge/Snowflake-Data_Warehouse-29B5E8?style=flat-square&logo=snowflake&logoColor=white)
+![dbt](https://img.shields.io/badge/dbt_Core-1.8+-FF694B?style=flat-square&logo=dbt&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI%2FCD-2088FF?style=flat-square&logo=githubactions&logoColor=white)
+![uv](https://img.shields.io/badge/uv-package_manager-DE5FE9?style=flat-square&logo=astral&logoColor=white)
+![Apache Parquet](https://img.shields.io/badge/Apache_Parquet-50ABF1?style=flat-square&logo=apacheparquet&logoColor=white)
+[![CI — dbt compile](https://github.com/Simplon-DE-P1-2025/NYC-Taxi-Drinking-Terror/actions/workflows/dbt_ci.yml/badge.svg)](https://github.com/Simplon-DE-P1-2025/NYC-Taxi-Drinking-Terror/actions/workflows/dbt_ci.yml)
+
+Pipeline de données complet sur les trajets de taxis jaunes de New York (NYC TLC Yellow Taxi), couvrant la période **2024 – début 2025** (~40–60 millions de lignes). Projet réalisé en 5 jours dans le cadre de la formation **Data Engineering — Simplon Promotion P1 2025**.
 
 **Équipe** : Ashley · Matthieu · Lounes
 
@@ -91,7 +99,7 @@ Pas d'Airflow, pas de Prefect, pas de Docker — GitHub Actions couvre le besoin
 
 ### Schéma de dev par personne
 
-Pour éviter les collisions sur le compte Snowflake partagé, chaque développeur écrit dans son propre schéma (`DBT_LOUNES`, `DBT_ASHLEY`, `DBT_MATTHIEU`) via la variable `DBT_USER`. Une macro `generate_schema_name` personnalisée contrôle ce comportement : en `dev`/`preprod`, tout atterrit dans le schéma de la cible ; en `prod`, les schémas `STAGING` et `FINAL` sont respectés.
+Pour éviter les collisions sur le compte Snowflake partagé, chaque développeur écrit dans son propre schéma (`DBT_LOUNES`, `DBT_ASHLEY`, `DBT_MATTHIEU`) via la variable d'environnement `DBT_USER`. Une macro `generate_schema_name` personnalisée contrôle ce comportement : en `dev`/`preprod`, tout atterrit dans le schéma de la cible ; en `prod`, les schémas `STAGING` et `FINAL` sont respectés.
 
 ---
 
@@ -129,7 +137,7 @@ cp .env.example .env
 Renseigner `.env` :
 
 ```bash
-SNOWFLAKE_ACCOUNT=<identifiant-compte>.snowflakecomputing.com
+SNOWFLAKE_ACCOUNT=<identifiant-compte>
 SNOWFLAKE_USER=<votre-username-snowflake>
 SNOWFLAKE_PASSWORD=<votre-mot-de-passe>
 DBT_USER=<VOTRE_PRENOM_EN_MAJUSCULES>   # ex: LOUNES → schéma dev DBT_LOUNES
@@ -380,7 +388,7 @@ Trois développeurs travaillant en parallèle sur un seul compte Snowflake risqu
 
 ## Pistes d'amélioration
 
-**Orchestration** : remplacer le cron GitHub Actions par un orchestrateur dédié (Dagster, Prefect, Astronomer) pour la gestion des dépendances entre tâches, les retry automatiques et l'observabilité.
+**Orchestration** : remplacer le cron GitHub Actions par un orchestrateur dédié (Dagster, Prefect, Astronomer, Airflow...) pour la gestion des dépendances entre tâches, les retry automatiques et l'observabilité.
 
 **Données complémentaires** : enrichir avec les données météo NYC (API Open-Meteo, déjà accessible gratuitement) pour mesurer l'impact de la pluie/neige sur la demande — une corrélation souvent évoquée mais jamais quantifiée dans ce dataset.
 
