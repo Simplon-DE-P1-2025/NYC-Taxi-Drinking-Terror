@@ -3,170 +3,297 @@ marp: true
 theme: default
 paginate: true
 style: |
+  /* ── Palette ─────────────────────────────────────────────── */
+  :root {
+    --yellow:  #F7C800;
+    --black:   #1C1C1C;
+    --gray:    #F5F5F5;
+    --border:  #E0E0E0;
+  }
+
+  /* ── Slide de base ───────────────────────────────────────── */
   section {
     font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 21px;
+    color: var(--black);
+    background: #FFFFFF;
+    padding: 55px 64px 48px;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--yellow) 0px,  var(--yellow) 14px,
+      var(--black)  14px, var(--black)  28px
+    );
+    background-size: 100% 12px;
+    background-repeat: no-repeat;
+    background-position: top left;
   }
-  section.lead h1 {
-    font-size: 2.2rem;
+
+  h1 {
+    font-size: 1.5rem;
+    color: var(--black);
+    border-bottom: 3px solid var(--yellow);
+    padding-bottom: 8px;
+    margin: 0 0 22px 0;
   }
+
+  h2 { font-size: 1.15rem; margin: 18px 0 6px; }
+  h3 { font-size: 1rem; color: #555; margin: 12px 0 4px; }
+
+  ul, ol { line-height: 1.75; margin: 0; padding-left: 24px; }
+  li { margin-bottom: 3px; }
+
+  strong { color: var(--black); }
+
   code {
-    font-size: 0.85em;
+    background: #F0F0F0;
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-size: 0.83em;
   }
+
+  pre {
+    background: #1C1C1C !important;
+    border-left: 4px solid var(--yellow);
+    border-radius: 4px;
+    padding: 14px 18px !important;
+    font-size: 0.76em;
+    line-height: 1.5;
+  }
+
+  pre code {
+    background: transparent !important;
+    color: #E8E8E8;
+    padding: 0;
+    font-size: 1em;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.82em; }
+  th {
+    background: var(--yellow);
+    color: var(--black);
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  td { padding: 7px 12px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: var(--gray); }
+
+  blockquote {
+    background: #FFFBE6;
+    border-left: 4px solid var(--yellow);
+    padding: 10px 16px;
+    margin: 14px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.88em;
+    color: #555;
+  }
+
+  section::after { font-size: 13px; color: #AAAAAA; }
+
+  /* ── Slide titre (lead) ──────────────────────────────────── */
+  section.lead {
+    background: var(--black);
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        var(--yellow) 0px,  var(--yellow) 20px,
+        var(--black)  20px, var(--black)  40px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        var(--yellow) 0px,  var(--yellow) 20px,
+        var(--black)  20px, var(--black)  40px
+      );
+    background-size: 100% 18px, 100% 18px;
+    background-position: top, bottom;
+    background-repeat: no-repeat;
+    color: var(--yellow);
+    text-align: center;
+    justify-content: center;
+    padding: 60px 80px;
+  }
+
+  section.lead h1 {
+    color: var(--yellow);
+    border-bottom-color: var(--yellow);
+    font-size: 2.1rem;
+    margin-bottom: 16px;
+  }
+
+  section.lead h2 { color: #CCCCCC; font-size: 1.1rem; margin: 6px 0; font-weight: 400; }
+  section.lead p   { color: #CCCCCC; margin: 6px 0; }
+  section.lead strong { color: var(--yellow); }
+  section.lead::after { color: transparent; }
 ---
 
 <!-- _class: lead -->
 
-# NYC Yellow Taxi — Pipeline de données
-### Analyse des trajets 2024–2025
+# NYC Yellow Taxi
+## Pipeline de données end-to-end
 
-**Simplon — Promotion Data Engineering P1 2025**
-Prénom A · Prénom B · Prénom C
+**2024 – début 2025 · ~40–60 millions de trajets**
 
----
-
-## Sommaire
-
-1. Contexte & objectifs
-2. Architecture technique
-3. Ingestion des données
-4. Transformations dbt
-5. Analyses & KPIs clés
-6. Dashboard Streamlit
-7. Difficultés & solutions
-8. Conclusion
+Ashley · Matthieu · Lounes
+*Simplon — Data Engineering P1 2025*
 
 ---
 
-## Contexte & objectifs
+# Contexte & objectifs
 
-- **Source** : NYC TLC Yellow Taxi — fichiers Parquet mensuels (2024 + début 2025)
-- **Volume** : ~40–60 millions de trajets
-- **Objectif** : construire un pipeline de données end-to-end, du fichier brut aux KPIs analytiques
+La **NYC TLC** publie chaque mois les données de tous les Yellow Taxis (~200–500 MB/mois, format Parquet).
 
-**Périmètre du projet (3 jours, 3 personnes)**
-- Ingestion automatisée vers Snowflake
-- Nettoyage et transformations via dbt
-- Analyses agrégées et dashboard interactif
+**Objectif : un pipeline end-to-end en 5 jours**
+
+1. **Ingérer** les fichiers Parquet bruts → Snowflake
+2. **Nettoyer & enrichir** via dbt (nettoyage, colonnes calculées)
+3. **Agréger** en tables analytiques (KPIs jour / zone / heure)
+4. **Automatiser** via GitHub Actions — sans Airflow, sans Docker
 
 ---
 
-## Architecture technique
+# Architecture — Medallion
 
 ```
-NYC TLC (Parquet)
+NYC TLC  (Parquet mensuel, ~300 MB)
     │
-    ▼
-[Python ingestion]  →  Snowflake RAW.yellow_taxi_trips
-                              │
-                        dbt (staging)
-                              │
-                    STAGING.stg_yellow_trips
-                        (nettoyage + colonnes calculées)
-                              │
-             ┌────────────────┼───────────────────┐
-             ▼                ▼                   ▼
-    FINAL.daily_summary  FINAL.zone_analysis  FINAL.hourly_patterns
+    ▼  Python · PUT stage · COPY INTO
+RAW.yellow_taxi_trips          ← types permissifs, toutes colonnes
+    │
+    ▼  dbt staging (vue)
+STAGING.stg_yellow_trips       ← nettoyage + 15 colonnes calculées
+    │
+    ├──────────────────┬──────────────────┐
+    ▼                  ▼                  ▼
+FINAL.daily_summary  FINAL.zone_analysis  FINAL.hourly_patterns
+KPIs jour/borough    Analyse zone TLC     Patterns par heure
 ```
 
-**Stack** : Snowflake · dbt Core ≥1.8 · Python ≥3.10 · GitHub Actions · uv
+> Architecture **RAW → STAGING → FINAL** — chaque couche a un rôle clair et testable indépendamment.
 
 ---
 
-## Ingestion
+# Stack technique
 
-- Téléchargement des fichiers Parquet depuis l'API NYC TLC
-- `PUT` vers un stage Snowflake interne
-- `COPY INTO` avec `MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE`
-
-**Défi : schémas hétérogènes 2024 vs 2025**
-- 2025 introduit `cbd_congestion_fee` (taxe de congestion, effective le 5 janvier)
-- Solution : colonnes manquantes chargées en `NULL` automatiquement
-
-**Défi : types inconsistants entre mois**
-- Ex. `passenger_count` : `DOUBLE` ou `INT64` selon le fichier
-- Solution : types permissifs (`NUMBER`, `FLOAT`) dans la table `RAW`
+| Outil | Rôle | Pourquoi ce choix |
+|---|---|---|
+| **Snowflake** | Data Warehouse | Chargement Parquet natif via stages, isolation compute/storage, compatibilité dbt |
+| **dbt Core** | Transformations SQL | Lineage auto, tests intégrés, open-source sans serveur |
+| **Python + uv** | Ingestion | `uv run --env-file` — reproductible sur tous les OS sans activation manuelle |
+| **GitHub Actions** | Orchestration | Déclencheurs push/merge + cron mensuel, secrets natifs |
 
 ---
 
-## Transformations dbt — Staging
+# Ingestion
 
-**Modèle** : `stg_yellow_trips` (vue)
+**Flux pour chaque mois :**
 
-Règles de nettoyage appliquées :
-- `fare_amount >= 0` et `total_amount >= 0`
-- `tpep_dropoff_datetime > tpep_pickup_datetime`
-- `trip_distance > 0 AND trip_distance < 100`
+```
+1. HEAD request → détecter le dernier mois disponible (décalage ~2 mois TLC)
+2. Téléchargement streaming 8 MB/chunk → répertoire temporaire
+3. PUT → stage Snowflake interne
+4. COPY INTO RAW.yellow_taxi_trips
+5. REMOVE du stage (facturation au stockage)
+```
 
-Colonnes calculées :
-| Colonne | Formule |
+**Idempotence** : vérification `_source_file` avant téléchargement → aucun doublon en cas de re-run.
+
+**Défi — schémas hétérogènes 2024 vs 2025**
+`cbd_congestion_fee` apparaît en janvier 2025 (taxe de congestion NYC).
+→ `MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE` : colonnes manquantes → `NULL`, inconnues → ignorées.
+
+---
+
+# Transformations dbt
+
+**`stg_yellow_trips`** (vue) — filtres + enrichissement
+
+| Filtre | Règle |
 |---|---|
-| `trip_duration_min` | `DATEDIFF('minute', pickup, dropoff)` |
-| `avg_speed_mph` | `trip_distance / (duration / 60)` |
-| `tip_rate` | `tip_amount / fare_amount` (carte uniquement) |
-| `time_of_day` | night / morning / afternoon / evening |
-| `distance_category` | short / medium / long |
+| Période | 2024-01-01 → 2025-12-31 |
+| Distance | > 0 mi et ≤ P99 (~35 km) |
+| Durée | > 0 et ≤ P99 (~75 min) |
+| Montants | `fare_amount ≥ 0`, `total_amount ≥ 0` |
+
+Colonnes clés : `trip_distance_km`, `speed_kmh`, `tip_percentage`\*, `is_rush_hour`, `pickup_borough`, `is_airport_trip`
+
+> **\*** `tip_percentage` : paiement carte uniquement (`payment_type = 1`). Le cash ne remonte pas `tip_amount` — l'inclure biaiserait le taux de ~22 % vers ~8 %.
 
 ---
 
-## Transformations dbt — Marts
+# Marts analytiques
 
-**`daily_summary`** (table)
-> KPIs agrégés par jour : volume, revenus, durée et vitesse moyennes
+**`daily_summary`** — KPIs agrégés par **jour × borough**
+Volume de trajets, revenus totaux, durée et vitesse moyennes, taux de pourboire carte
 
-**`zone_analysis`** (table)
-> Performance par zone géographique TLC : zones les plus actives, revenus par zone, taux de pourboire
+**`zone_analysis`** — Performance par **zone TLC** (265 zones)
+Zones les plus actives au départ/arrivée, revenus et pourboires moyens par zone
 
-**`hourly_patterns`** (table)
-> Patterns temporels heure par heure : pics de demande, heures de rush, corrélations météo/trafic
-
----
-
-## KPIs & analyses clés
-
-<!-- TODO : compléter avec les chiffres réels une fois develop finalisé -->
-
-- Volume total de trajets analysés : **~XX millions**
-- Durée moyenne d'un trajet : **XX min**
-- Zone de départ la plus active : **XX**
-- Heure de pointe dominante : **XXh**
-- Taux de pourboire moyen (paiement carte) : **XX%**
+**`hourly_patterns`** — Patterns par **heure de la journée**
+Volume, vitesse, revenus, identification des heures de pointe (7h–9h, 16h–19h)
 
 ---
 
-## Dashboard Streamlit
+# Qualité des données
 
-<!-- TODO : ajouter captures d'écran du dashboard Snowflake une fois disponible -->
+**Tests génériques** sur chaque modèle : `not_null`, `unique`, `accepted_values`, `relationships`
+
+**Tests métier singuliers** (SQL → 0 ligne = OK) :
+
+| Test | Règle vérifiée |
+|---|---|
+| `assert_no_negative_amounts` | Aucun montant négatif après staging |
+| `assert_rush_hour_above_average_trips` | Heures de pointe > moyenne en semaine |
+| `assert_zone_activity_coherent` | `total_activity ≥ trips_as_origin` (invariant arithmétique) |
+| `assert_manhattan_busiest_borough` | Manhattan = 1er borough chaque mois (~70 % du volume TLC) |
+| `assert_weekday_trips_exceed_weekend` | Semaine > week-end chaque mois |
+| `assert_manhattan_card_tips_positive` | Taux pourboire carte Manhattan ≥ 15 % |
+
+---
+
+# CI/CD — GitHub Actions
+
+```
+PR ouverte         →  dbt compile         validation SQL, 0 écriture Snowflake
+Merge → develop    →  dbt build preprod   schéma DBT_PREPROD
+Merge → main       →  dbt build prod      STAGING + FINAL
+Cron le 15/mois    →  ingestion + prod    pipeline mensuel automatisé
+```
+
+**Isolation dev/prod** : macro `generate_schema_name` → chaque dev écrit dans `DBT_<PRENOM>`, prod dans `STAGING`/`FINAL`. Aucune collision sur le compte partagé.
+
+**Secrets** : `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_PASSWORD` — GitHub Actions Secrets, jamais dans le code.
+
+---
+
+# Difficultés rencontrées
+
+| Problème | Solution |
+|---|---|
+| Schémas Parquet différents 2024/2025 (`cbd_congestion_fee`) | `MATCH_BY_COLUMN_NAME` + types permissifs dans RAW |
+| Types inconsistants entre mois (`INT64` vs `DOUBLE`) | Types permissifs dans RAW, rigueur imposée en staging uniquement |
+| 3 devs sur 1 compte Snowflake partagé | Macro `generate_schema_name` → schéma isolé `DBT_<PRENOM>` par personne |
+| Biais `tip_amount` sur paiements cash | Filtre `payment_type = 1` avant tout calcul du taux |
+| Coût : 40–60M lignes sur compte d'essai ($400 crédits) | Warehouse XS + auto-suspend + resource monitor + `LIMIT` systématique |
+
+---
+
+# Dashboard Streamlit
+
+<!-- TODO : ajouter captures d'écran une fois le dashboard finalisé -->
 
 - Interface déployée sur **Snowflake Streamlit**
-- Accès direct aux tables `FINAL` sans export
+- Accès direct aux tables `FINAL` — pas d'export de données
 - Visualisations : …
 
 ---
 
-## Difficultés & solutions
+# Pistes d'amélioration
 
-| Difficulté | Solution retenue |
-|---|---|
-| Schémas Parquet variables selon les mois | Types permissifs + `MATCH_BY_COLUMN_NAME` |
-| `tip_amount` biaisé pour paiements cash | Filtre `payment_type = 1` avant calcul |
-| Environnements dev/prod partagés sur un seul compte Snowflake | Schéma de dev par personne via `env_var` |
-| Coût des requêtes sur 40M+ lignes | Warehouse XS + auto-suspend + `LIMIT` en exploration |
-
----
-
-<!-- _class: lead -->
-
-## Conclusion
-
-- Pipeline end-to-end fonctionnel en **3 jours**
-- Architecture **medallion** reproductible (RAW → STAGING → FINAL)
-- Données de qualité validées par **tests dbt** à chaque couche
-- Dashboard opérationnel sur Snowflake
-
-**Ce qu'on ferait avec plus de temps**
-- Orchestration Airflow / Dagster
-- Prédiction de la demande (ML)
-- Intégration données météo NYC
+- **Orchestration** — Dagster ou Prefect pour le retry automatique et l'observabilité du DAG
+- **Données météo** — API Open-Meteo (gratuite) pour quantifier l'impact pluie/neige sur la demande
+- **Staging incrémental** — matérialisation `incremental` sur `pickup_date` pour réduire les coûts de scan
+- **Prédiction de la demande** — modèle Prophet/LSTM sur 12+ mois pour anticiper le volume par zone
+- **Tests de volume** — alertes si un jour < 50k trajets (détection d'ingestion incomplète)
 
 ---
 
@@ -174,6 +301,9 @@ Colonnes calculées :
 
 # Merci
 
-Questions ?
+**Ce qu'on retient**
+Pipeline end-to-end fonctionnel · Architecture medallion reproductible · Qualité validée à chaque couche
 
-**Repo** : github.com/Simplon-DE-P1-2025/NYC-Taxi-Drinking-Terror
+*Questions ?*
+
+`github.com/Simplon-DE-P1-2025/NYC-Taxi-Drinking-Terror`
