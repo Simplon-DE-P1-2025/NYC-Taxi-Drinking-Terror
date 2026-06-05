@@ -45,7 +45,7 @@ La **NYC TLC** (Taxi & Limousine Commission) publie chaque mois les données de 
 
 ## Architecture
 
-Le pipeline suit une architecture **medallion** en trois couches :
+Le pipeline suit une architecture **Multi-Stage** en trois couches :
 
 ```
 NYC TLC (fichiers Parquet mensuels)
