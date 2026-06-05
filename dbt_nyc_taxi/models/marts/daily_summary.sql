@@ -4,7 +4,7 @@ WITH base AS (
 ),
 aggregated AS (
     SELECT
-        DATE_TRUNC('month', pickup_datetime)      AS pickup_month,
+        DATE_TRUNC('month', pickup_datetime)     AS pickup_month,
         TO_DATE(pickup_datetime)                 AS pickup_date,
         pickup_day_of_week,
         is_weekend,
@@ -12,8 +12,8 @@ aggregated AS (
         dropoff_borough,
         duration_category,
         COUNT(*)                                 AS total_trips,
-        SUM(party_size)                          AS total_party_size,
-        ROUND(AVG(party_size), 2)                AS avg_party_size,
+        SUM(passenger_count)                     AS total_passengers,
+        ROUND(AVG(passenger_count), 2)           AS avg_nb_passengers,
         ROUND(AVG(trip_distance_km), 2)          AS avg_distance_km,
         ROUND(AVG(trip_duration_minutes), 1)     AS avg_duration_min,
         ROUND(AVG(fare_per_km), 2)               AS avg_fare_per_km,
@@ -31,4 +31,4 @@ aggregated AS (
 )
 SELECT *
 FROM aggregated
-ORDER BY pickup_date, pickup_borough, dropoff_borough, duration_category;
+ORDER BY pickup_date, pickup_borough, dropoff_borough, duration_category

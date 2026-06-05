@@ -45,11 +45,11 @@ models:
         tests:
           - not_null
 
-      - name: total_party_size
+      - name: total_passengers
         description: "Nombre total de passagers sur l'ensemble des trajets"
 
-      - name: avg_party_size
-        description: "Taille moyenne du groupe par trajet"
+      - name: avg_nb_passengers
+        description: "Numbre moyenne du passagers par trajet"
 
       - name: avg_distance_km
         description: "Distance moyenne des trajets en kilomètres"
