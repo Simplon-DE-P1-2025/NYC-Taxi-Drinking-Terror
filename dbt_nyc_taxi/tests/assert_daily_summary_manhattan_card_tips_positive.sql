@@ -1,8 +1,8 @@
--- Manhattan card-paying passengers should leave a positive average tip every month.
--- NYC taxi POS systems display 20/25/30% tip buttons by default, and Manhattan's
--- tourist and business-traveler base tips consistently. With thousands of card
--- payments per month, the monthly average should never reach zero.
--- Rows returned = months where Manhattan avg tip is zero or negative → anomaly.
+-- Manhattan card-paying passengers should average at least 15% tip each month.
+-- NYC taxi POS systems display 20/25/30% tip buttons by default — 15% is the
+-- cultural minimum for NYC tipping. Manhattan's tourist and business-traveler
+-- base consistently tips above this threshold.
+-- Rows returned = months where Manhattan avg tip falls below 15% → anomaly.
 WITH manhattan_monthly_tip AS (
     SELECT
         pickup_month,
@@ -14,4 +14,4 @@ WITH manhattan_monthly_tip AS (
 )
 SELECT *
 FROM manhattan_monthly_tip
-WHERE monthly_avg_tip_pct <= 0
+WHERE monthly_avg_tip_pct < 15

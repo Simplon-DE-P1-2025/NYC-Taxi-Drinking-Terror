@@ -59,8 +59,8 @@ Deux facteurs combinés : (1) ~22 jours ouvrés contre ~9 jours de week-end par 
 
 #### `assert_daily_summary_manhattan_card_tips_positive`
 **Type** : pattern métier financier  
-**Règle** : la moyenne mensuelle du taux de pourboire carte (`avg_tip_pct_card`) à Manhattan est toujours strictement positive.  
-Les terminaux POS des taxis NYC affichent par défaut des boutons à 20 %, 25 % et 30 %. La clientèle touristique et d'affaires de Manhattan tip de façon quasi-systématique. Avec des milliers de paiements carte par mois, la moyenne mensuelle ne peut pas tomber à zéro.
+**Règle** : la moyenne mensuelle du taux de pourboire carte (`avg_tip_pct_card`) à Manhattan est toujours **≥ 15 %**.  
+Les terminaux POS des taxis NYC affichent par défaut des boutons à 20 %, 25 % et 30 %. 15 % est la norme culturelle minimale à NYC. La clientèle touristique et d'affaires de Manhattan tip systématiquement au-dessus de ce seuil.
 
 > **Périmètre** : seuls les paiements carte (`payment_type_id = 1`) sont pris en compte — `tip_percentage` est déjà `NULL` pour les autres modes de paiement dans le staging.
 
