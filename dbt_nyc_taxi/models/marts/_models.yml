@@ -3,10 +3,11 @@ version: 2
 models:
   - name: daily_summary
     description: >
-      Daily summary of NYC Yellow Taxi trips aggregated by pickup date and pickup borough.
-      Grain: (pickup_date, pickup_borough). Pre-computed attributes: pickup_month,
-      pickup_day_of_week, is_weekend. Enables analysis of daily volumes, passenger load,
-      distances, fares, tips (card payments only), total revenue, and airport activity.
+      Synthèse quotidienne des trajets Yellow Taxi NYC agrégés par date et borough de prise en charge.
+      Grain : (pickup_date, pickup_borough). Attributs pré-calculés : pickup_month,
+      pickup_day_of_week, is_weekend. Permet d'analyser les volumes journaliers, la charge passagers,
+      les distances, les tarifs, les pourboires (paiements carte uniquement), le revenu total
+      et l'activité aéroportuaire.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -15,65 +16,65 @@ models:
 
     columns:
       - name: pickup_month
-        description: "Pickup month, truncated to the first day of the month"
+        description: "Mois de prise en charge, tronqué au premier jour du mois"
         tests:
           - not_null
 
       - name: pickup_date
-        description: "Pickup date derived from the pickup timestamp"
+        description: "Date de prise en charge dérivée de l'horodatage de prise en charge"
         tests:
           - not_null
 
       - name: pickup_day_of_week
-        description: "Day of the week of the pickup (0=Sunday to 6=Saturday)"
+        description: "Jour de la semaine de la prise en charge (0=dimanche à 6=samedi)"
         tests:
           - not_null
 
       - name: is_weekend
-        description: "TRUE if the pickup occurred on a Saturday or Sunday"
+        description: "TRUE si la prise en charge a eu lieu un samedi ou un dimanche"
         tests:
           - not_null
 
       - name: pickup_borough
-        description: "Pickup borough (Manhattan, Brooklyn, Queens, Bronx, Staten Island, EWR, or NULL for unknown zones)"
+        description: "Borough de prise en charge (Manhattan, Brooklyn, Queens, Bronx, Staten Island, EWR, ou NULL pour les zones inconnues)"
 
       - name: total_trips
-        description: "Total number of trips"
+        description: "Nombre total de trajets"
         tests:
           - not_null
 
       - name: total_passengers
-        description: "Total number of passengers across all trips"
+        description: "Nombre total de passagers sur l'ensemble des trajets"
 
       - name: avg_nb_passengers
-        description: "Average number of passengers per trip"
+        description: "Nombre moyen de passagers par trajet"
 
       - name: avg_distance_km
-        description: "Average trip distance in kilometres"
+        description: "Distance moyenne des trajets en kilomètres"
 
       - name: avg_duration_min
-        description: "Average trip duration in minutes"
+        description: "Durée moyenne des trajets en minutes"
 
       - name: avg_fare_per_km
-        description: "Average fare per kilometre"
+        description: "Tarif moyen par kilomètre"
 
       - name: avg_tip_amount_card
-        description: "Average tip amount — card payments only (payment_type_id = 1)"
+        description: "Montant moyen du pourboire — paiements carte uniquement (payment_type_id = 1)"
 
       - name: avg_tip_pct_card
-        description: "Average tip percentage — card payments only (payment_type_id = 1, already NULL-filtered in staging)"
+        description: "Pourcentage moyen de pourboire — paiements carte uniquement (tip_percentage déjà NULL pour les non-cartes en staging)"
 
       - name: avg_total_amount
-        description: "Average total amount charged per trip"
+        description: "Montant total moyen facturé par trajet"
 
       - name: total_revenue
-        description: "Total revenue from total_amount"
+        description: "Revenu total calculé à partir de total_amount"
 
       - name: airport_trips
-        description: "Number of trips involving an airport (pickup or dropoff)"
+        description: "Nombre de trajets impliquant un aéroport au départ ou à l'arrivée"
 
       - name: airport_trip_pct
-        description: "Percentage of airport trips out of total trips"
+        description: "Part des trajets liés à un aéroport en pourcentage du total"
 
   - name: hourly_patterns
     description: >
