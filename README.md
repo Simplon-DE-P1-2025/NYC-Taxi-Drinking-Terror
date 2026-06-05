@@ -8,7 +8,7 @@
 ![Apache Parquet](https://img.shields.io/badge/Apache_Parquet-50ABF1?style=flat-square&logo=apacheparquet&logoColor=white)
 [![CI — dbt compile](https://github.com/Simplon-DE-P1-2025/NYC-Taxi-Drinking-Terror/actions/workflows/dbt_ci.yml/badge.svg)](https://github.com/Simplon-DE-P1-2025/NYC-Taxi-Drinking-Terror/actions/workflows/dbt_ci.yml)
 
-Pipeline de données complet sur les trajets de taxis jaunes de New York (NYC TLC Yellow Taxi), couvrant la période **2024 – début 2025** (~40–60 millions de lignes). Projet réalisé en 5 jours dans le cadre de la formation **Data Engineering — Simplon Promotion P1 2025**.
+Pipeline de données complet sur les trajets de taxis jaunes de New York (NYC TLC Yellow Taxi), couvrant la période **2024 – 2025** (~70 millions de lignes). Projet réalisé en 5 jours dans le cadre de la formation **Data Engineering — Simplon Promotion P1 2025**.
 
 **Équipe** : Ashley · Matthieu · Lounes
 
