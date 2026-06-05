@@ -1,7 +1,82 @@
 version: 2
 
 models:
-  # --- daily_summary : à compléter par la collègue responsable de ce modèle ---
+  - name: daily_summary
+    description: >
+      Synthèse quotidienne des trajets Yellow Taxi NYC agrégés par mois de prise en charge,
+      date de prise en charge, jour de la semaine, indicateur de week-end, borough de prise en charge,
+      borough de dépose et catégorie de durée du trajet.
+      Grain : (pickup_month, pickup_date, pickup_day_of_week, is_weekend, pickup_borough,
+      dropoff_borough, duration_category). Ce modèle permet d'analyser les volumes quotidiens,
+      la charge passagers, les distances, les tarifs, les pourboires, le revenu total et l'activité aéroportuaire.
+
+    columns:
+      - name: pickup_month
+        description: "Mois de prise en charge, tronqué au premier jour du mois"
+        tests:
+          - not_null
+
+      - name: pickup_date
+        description: "Date de prise en charge dérivée de l'horodatage de prise en charge"
+        tests:
+          - not_null
+
+      - name: pickup_day_of_week
+        description: "Jour de la semaine de la prise en charge (par exemple lundi à dimanche)"
+        tests:
+          - not_null
+
+      - name: is_weekend
+        description: "TRUE si la prise en charge a eu lieu un samedi ou un dimanche"
+        tests:
+          - not_null
+
+      - name: pickup_borough
+        description: "Borough de départ du trajet"
+
+      - name: dropoff_borough
+        description: "Borough d'arrivée du trajet"
+
+      - name: duration_category
+        description: "Catégorie de durée du trajet utilisée pour regrouper les trajets par longueur"
+
+      - name: total_trips
+        description: "Nombre total de trajets"
+        tests:
+          - not_null
+
+      - name: total_party_size
+        description: "Nombre total de passagers sur l'ensemble des trajets"
+
+      - name: avg_party_size
+        description: "Taille moyenne du groupe par trajet"
+
+      - name: avg_distance_km
+        description: "Distance moyenne des trajets en kilomètres"
+
+      - name: avg_duration_min
+        description: "Durée moyenne des trajets en minutes"
+
+      - name: avg_fare_per_km
+        description: "Tarif moyen par kilomètre sur l'ensemble des trajets du groupe"
+
+      - name: avg_tip_amount
+        description: "Montant moyen du pourboire"
+
+      - name: avg_tip_percentage
+        description: "Pourcentage moyen de pourboire"
+
+      - name: avg_total_amount
+        description: "Montant total moyen facturé par trajet"
+
+      - name: total_revenue
+        description: "Revenu total calculé à partir de total_amount"
+
+      - name: airport_trips
+        description: "Nombre de trajets impliquant un aéroport au départ ou à l'arrivée"
+
+      - name: airport_trip_pct
+        description: "Part des trajets liés à un aéroport en pourcentage du total"
 
   - name: hourly_patterns
     description: >
